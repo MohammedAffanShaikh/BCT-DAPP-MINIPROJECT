@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Decentralized Certificate Verification DApp Using Ethereum - BCT Project by Shaikh Affan (Roll No: 242774)">
+    <title>Decentralized Certificate Verification DApp | Shaikh Affan 242774</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Ethers.js v5 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Professional Project Header Banner -->
+    <div class="project-header-bar">
+        <div class="student-badge-info" id="student-header-info">
+            <span>🎓 Student: <strong>Shaikh Affan</strong></span>
+            <span class="student-badge-pill">Roll No: 242774</span>
+            <span>BCT Project</span>
+        </div>
+        <div>
+            <span>Decentralized Application | Ethereum Smart Contracts</span>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="brand-text">
+                <h1>CertiVerify DApp</h1>
+                <span>Shaikh Affan • Roll No: 242774</span>
+            </div>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="index.html" class="active"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li><a href="admin.html"><i class="fa-solid fa-user-shield"></i> Issue Certificate</a></li>
+            <li><a href="verify.html"><i class="fa-solid fa-magnifying-glass"></i> Verify Certificate</a></li>
+            <li><a href="about.html"><i class="fa-solid fa-circle-info"></i> About Project</a></li>
+        </ul>
+
+        <button id="connect-wallet-btn" class="wallet-btn">
+            <i class="fa-brands fa-ethereum"></i> Connect Wallet
+        </button>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        
+        <!-- Network & Wallet Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator" id="network-indicator"></div>
+                <span class="status-label">Network:</span>
+                <span class="status-value" id="network-name-val">Ethereum Sepolia / Local</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-wallet" style="color: var(--accent-cyan);"></i>
+                <span class="status-label">Wallet Address:</span>
+                <span class="status-value" id="account-address-val">Not Connected</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-file-contract" style="color: var(--success);"></i>
+                <span class="status-label">Total Certificates Issued:</span>
+                <span class="status-value" id="total-certs-val">0</span>
+            </div>
+        </div>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-tag">
+                <i class="fa-solid fa-cube"></i> Ethereum Blockchain Powered Verification
+            </div>
+            <h1>Decentralized Certificate Verification DApp</h1>
+            <p>
+                A tamper-proof, immutable academic credential verification system built on the Ethereum blockchain. Eliminates certificate forgery, enables instant verification, and empowers universities and employers worldwide.
+            </p>
+            <div class="hero-actions">
+                <a href="admin.html" class="btn-primary">
+                    <i class="fa-solid fa-pen-to-square"></i> Issue Certificate
+                </a>
+                <a href="verify.html" class="btn-secondary">
+                    <i class="fa-solid fa-magnifying-glass"></i> Verify Certificate
+                </a>
+            </div>
+        </section>
+
+        <!-- Feature Cards -->
+        <section class="grid-3">
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-lock"></i></div>
+                <h3>Tamper-Proof Ledger</h3>
+                <p>Every certificate is stored on the Ethereum blockchain using cryptographic hashing, preventing unauthorized alterations or fake degrees.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-bolt"></i></div>
+                <h3>Instant Public Verification</h3>
+                <p>Recruiters, universities, and students can instantly query certificate authenticity in real-time without middleman fees or delays.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon"><i class="fa-solid fa-key"></i></div>
+                <h3>Decentralized Ownership</h3>
+                <p>Smart contracts ensure that only authorized educational institution wallets can mint and sign valid credentials.</p>
+            </div>
+        </section>
+
+        <!-- How it Works Section -->
+        <section style="margin-top: 60px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h2 style="font-family: var(--font-heading); font-size: 2rem;">How It Works</h2>
+                <p style="color: var(--text-muted);">Three simple steps for issuing and verifying credentials</p>
+            </div>
+
+            <div class="grid-3">
+                <div class="card" style="position: relative;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: rgba(255,255,255,0.06); position: absolute; top: 15px; right: 20px;">01</div>
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 8px;">1. Admin Issuance</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">The authorized institute connects MetaMask and submits student details and document hash to the smart contract.</p>
+                </div>
+
+                <div class="card" style="position: relative;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: rgba(255,255,255,0.06); position: absolute; top: 15px; right: 20px;">02</div>
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 8px;">2. Ethereum Mining</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">The transaction is mined on Ethereum, storing immutable proof with a unique Certificate ID and transaction hash.</p>
+                </div>
+
+                <div class="card" style="position: relative;">
+                    <div style="font-size: 2.5rem; font-weight: 800; color: rgba(255,255,255,0.06); position: absolute; top: 15px; right: 20px;">03</div>
+                    <h4 style="color: var(--accent-cyan); margin-bottom: 8px;">3. Universal Verification</h4>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">Anyone enters the Certificate ID to retrieve authentic student records directly from the blockchain.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Professional Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-title">BCT Project | Decentralized Certificate Verification DApp</div>
+            <div class="footer-credits">Developed by Shaikh Affan | Roll No: 242774</div>
+            <div class="footer-sub">Subject: BCT • Smart Contracts & Web3 Technology</div>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

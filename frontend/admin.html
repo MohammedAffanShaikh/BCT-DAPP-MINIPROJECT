@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Admin Dashboard - Issue Certificate to Blockchain | Shaikh Affan (Roll No: 242774)">
+    <title>Admin Dashboard - Issue Certificate | Shaikh Affan 242774</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Ethers.js v5 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Student Header Banner -->
+    <div class="project-header-bar">
+        <div class="student-badge-info" id="student-header-info">
+            <span>🎓 Student: <strong>Shaikh Affan</strong></span>
+            <span class="student-badge-pill">Roll No: 242774</span>
+            <span>BCT Project</span>
+        </div>
+        <div>
+            <span>Admin Portal | Mint Blockchain Certificate</span>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="brand-text">
+                <h1>CertiVerify DApp</h1>
+                <span>Shaikh Affan • Roll No: 242774</span>
+            </div>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="index.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li><a href="admin.html" class="active"><i class="fa-solid fa-user-shield"></i> Issue Certificate</a></li>
+            <li><a href="verify.html"><i class="fa-solid fa-magnifying-glass"></i> Verify Certificate</a></li>
+            <li><a href="about.html"><i class="fa-solid fa-circle-info"></i> About Project</a></li>
+        </ul>
+
+        <button id="connect-wallet-btn" class="wallet-btn">
+            <i class="fa-brands fa-ethereum"></i> Connect Wallet
+        </button>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator" id="network-indicator"></div>
+                <span class="status-label">Network:</span>
+                <span class="status-value" id="network-name-val">Ethereum Sepolia / Local</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-wallet" style="color: var(--accent-cyan);"></i>
+                <span class="status-label">Admin Wallet:</span>
+                <span class="status-value" id="account-address-val">Not Connected</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-layer-group" style="color: var(--warning);"></i>
+                <span class="status-label">Access Level:</span>
+                <span class="status-value" style="color: var(--accent-cyan);">Institute Admin</span>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="font-family: var(--font-heading); font-size: 2.2rem;">Institute Admin Dashboard</h1>
+                <p style="color: var(--text-muted);">Issue new cryptographic certificates to the Ethereum Smart Contract</p>
+            </div>
+
+            <!-- Transaction Status Banner -->
+            <div id="tx-status-container" style="display: none; margin-bottom: 24px;"></div>
+
+            <!-- Issue Certificate Form Card -->
+            <div class="card">
+                <form id="issue-cert-form">
+                    
+                    <div class="form-group">
+                        <label for="certificateId"><i class="fa-solid fa-id-card"></i> Certificate ID *</label>
+                        <div class="input-group">
+                            <input type="text" id="certificateId" class="form-control" placeholder="e.g. CERT-2026-001" required>
+                            <button type="button" id="btn-autogen-id" class="btn-outline"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto Generate</button>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label for="studentName"><i class="fa-solid fa-user"></i> Student Full Name *</label>
+                            <input type="text" id="studentName" class="form-control" placeholder="e.g. Shaikh Affan" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="studentId"><i class="fa-solid fa-hashtag"></i> Student Roll / ID *</label>
+                            <input type="text" id="studentId" class="form-control" placeholder="e.g. 242774" required>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label for="course"><i class="fa-solid fa-graduation-cap"></i> Course / Program *</label>
+                            <input type="text" id="course" class="form-control" placeholder="e.g. Bachelor of Computer Technology (BCT)" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="issueDate"><i class="fa-solid fa-calendar-days"></i> Issue Date *</label>
+                            <input type="date" id="issueDate" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="documentHash"><i class="fa-solid fa-fingerprint"></i> Certificate Document SHA-256 Hash</label>
+                        <input type="text" id="documentHash" class="form-control" placeholder="SHA-256 hash automatically calculated from uploaded document or auto-generated">
+                    </div>
+
+                    <!-- File Drag & Drop Box -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-file-pdf"></i> Generate Hash from Certificate File (Optional)</label>
+                        <div class="hash-dropzone" id="hash-dropzone">
+                            <i class="fa-solid fa-cloud-arrow-up" style="font-size: 2rem; color: var(--accent-cyan); margin-bottom: 8px;"></i>
+                            <p id="dropzone-filename">Click or Drag & Drop PDF / Certificate Image to compute SHA-256 Hash</p>
+                            <input type="file" id="doc-file-input" style="display: none;" accept="application/pdf,image/*">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-submit-cert" class="btn-primary" style="width: 100%; justify-content: center; margin-top: 10px;">
+                        <i class="fa-solid fa-paper-plane"></i> Issue Certificate to Blockchain
+                    </button>
+                </form>
+            </div>
+
+            <!-- Issued Certificates Log Table -->
+            <div class="card" style="margin-top: 40px;">
+                <h3 style="font-family: var(--font-heading); margin-bottom: 16px;">
+                    <i class="fa-solid fa-list-check" style="color: var(--accent-cyan);"></i> Issued Certificates Log
+                </h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Cert ID</th>
+                                <th>Student</th>
+                                <th>Course</th>
+                                <th>Date</th>
+                                <th>SHA-256 Hash</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="issued-certs-tbody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Professional Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-title">BCT Project | Decentralized Certificate Verification DApp</div>
+            <div class="footer-credits">Developed by Shaikh Affan | Roll No: 242774</div>
+            <div class="footer-sub">Subject: BCT • Smart Contracts & Web3 Technology</div>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

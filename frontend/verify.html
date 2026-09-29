@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Public Certificate Verification Portal | Shaikh Affan (Roll No: 242774)">
+    <title>Verify Certificate | Decentralized DApp - Shaikh Affan 242774</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Ethers.js v5 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+
+    <!-- Student Header Banner -->
+    <div class="project-header-bar">
+        <div class="student-badge-info" id="student-header-info">
+            <span>🎓 Student: <strong>Shaikh Affan</strong></span>
+            <span class="student-badge-pill">Roll No: 242774</span>
+            <span>BCT Project</span>
+        </div>
+        <div>
+            <span>Public Verification Portal | Ethereum Immutable Records</span>
+        </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <a href="index.html" class="nav-brand">
+            <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
+            <div class="brand-text">
+                <h1>CertiVerify DApp</h1>
+                <span>Shaikh Affan • Roll No: 242774</span>
+            </div>
+        </a>
+
+        <ul class="nav-links">
+            <li><a href="index.html"><i class="fa-solid fa-house"></i> Home</a></li>
+            <li><a href="admin.html"><i class="fa-solid fa-user-shield"></i> Issue Certificate</a></li>
+            <li><a href="verify.html" class="active"><i class="fa-solid fa-magnifying-glass"></i> Verify Certificate</a></li>
+            <li><a href="about.html"><i class="fa-solid fa-circle-info"></i> About Project</a></li>
+        </ul>
+
+        <button id="connect-wallet-btn" class="wallet-btn">
+            <i class="fa-brands fa-ethereum"></i> Connect Wallet
+        </button>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-indicator" id="network-indicator"></div>
+                <span class="status-label">Network:</span>
+                <span class="status-value" id="network-name-val">Ethereum Sepolia / Local</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-wallet" style="color: var(--accent-cyan);"></i>
+                <span class="status-label">Wallet Address:</span>
+                <span class="status-value" id="account-address-val">Not Connected</span>
+            </div>
+
+            <div class="status-item">
+                <i class="fa-solid fa-shield-check" style="color: var(--success);"></i>
+                <span class="status-label">Verification Status:</span>
+                <span class="status-value" style="color: var(--success);">Public Access Ready</span>
+            </div>
+        </div>
+
+        <div style="max-width: 800px; margin: 0 auto;">
+            
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="font-family: var(--font-heading); font-size: 2.2rem;">Public Certificate Verification</h1>
+                <p style="color: var(--text-muted);">Query the Ethereum Smart Contract to verify academic credential authenticity</p>
+            </div>
+
+            <!-- Search Form Card -->
+            <div class="card non-printable">
+                <form id="verify-cert-form">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="searchCertId"><i class="fa-solid fa-magnifying-glass"></i> Enter Certificate ID *</label>
+                        <div class="input-group">
+                            <input type="text" id="searchCertId" class="form-control" placeholder="e.g. CERT-2026-001" required>
+                            <button type="submit" id="btn-verify-search" class="btn-primary">
+                                <i class="fa-solid fa-check-double"></i> Verify Certificate
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Preloaded Test Certificate Quick Links -->
+            <div class="non-printable" style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
+                <span>💡 Quick Test IDs: </span>
+                <a href="verify.html?id=CERT-2026-001" style="color: var(--accent-cyan); text-decoration: underline; margin: 0 6px;">CERT-2026-001 (Shaikh Affan)</a> | 
+                <a href="verify.html?id=CERT-2026-002" style="color: var(--accent-cyan); text-decoration: underline; margin: 0 6px;">CERT-2026-002 (Aarav Sharma)</a> | 
+                <a href="verify.html?id=CERT-INVALID-999" style="color: var(--danger); text-decoration: underline; margin: 0 6px;">CERT-INVALID-999 (Test Invalid)</a>
+            </div>
+
+            <!-- Dynamic Verification Result Container -->
+            <div id="verification-result-container" style="display: none;"></div>
+
+        </div>
+
+    </main>
+
+    <!-- Professional Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-title">BCT Project | Decentralized Certificate Verification DApp</div>
+            <div class="footer-credits">Developed by Shaikh Affan | Roll No: 242774</div>
+            <div class="footer-sub">Subject: BCT • Smart Contracts & Web3 Technology</div>
+        </div>
+    </footer>
+
+    <!-- App Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/verify.js"></script>
+</body>
+</html>

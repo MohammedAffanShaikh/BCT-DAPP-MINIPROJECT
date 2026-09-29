@@ -1,0 +1,24 @@
+{
+  "name": "certificate-verification-dapp",
+  "version": "1.0.0",
+  "description": "Decentralized Certificate Verification DApp Using Ethereum - BCT Project by Shaikh Affan (Roll No: 242774)",
+  "main": "frontend/index.html",
+  "scripts": {
+    "start": "npx serve frontend -p 3000",
+    "dev": "npx serve frontend -p 3000"
+  },
+  "keywords": [
+    "ethereum",
+    "solidity",
+    "ethers",
+    "metamask",
+    "certificate-verification",
+    "bct-project",
+    "shaikh-affan"
+  ],
+  "author": "Shaikh Affan (Roll No: 242774)",
+  "license": "MIT",
+  "dependencies": {
+    "serve": "^14.2.1"
+  }
+}

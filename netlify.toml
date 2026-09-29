@@ -1,0 +1,11 @@
+# Netlify Deployment Configuration
+# Student: Shaikh Affan | Roll No: 242774 | BCT Project
+
+[build]
+  publish = "frontend"
+  command = "# Static HTML/JS frontend - no build step required"
+
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
