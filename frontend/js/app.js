@@ -1,34 +1,75 @@
 /**
- * Main Application Logic & Blockchain Provider Helper
- * Student: Shaikh Affan | Roll No: 242774 | BCT Project
+ * Main Application Logic & Real Blockchain Provider Helper
+ * Project: Decentralized Certificate Verification DApp Using Ethereum
+ * Team Members:
+ *  - Shaikh Affan — 242774
+ *  - Shaikh Sohail Salim — 231754
+ *  - Shaikh Uzhair Mohd Ilyas — 231755
+ * Subject: BCT Project
  */
 
 let provider = null;
 let signer = null;
 let contract = null;
 let currentAccount = null;
+let currentChainId = null;
 
 // Initialize app when window loads
 window.addEventListener('DOMContentLoaded', async () => {
-    updateStudentHeader();
+    updateHeaderAndFooterTeamInfo();
     initializeLocalStorageCertificates();
     await checkMetaMaskConnection();
-    updateNetworkStatusUI();
     setupEventListeners();
+
+    // Secondary check after 500ms in case extension injection is delayed
+    setTimeout(async () => {
+        if (!currentAccount && getEthereumProvider()) {
+            await checkMetaMaskConnection();
+        }
+    }, 500);
 });
 
+// Listen for standard EIP-6963 / ethereum initialized events
+window.addEventListener('ethereum#initialized', checkMetaMaskConnection, { once: true });
+
 /**
- * Ensures student badge is populated across all pages
+ * Robustly resolves the Ethereum provider (handling multiple wallet extensions like MetaMask, Phantom, Brave)
  */
-function updateStudentHeader() {
+function getEthereumProvider() {
+    if (typeof window.ethereum !== 'undefined') {
+        if (window.ethereum.providers && window.ethereum.providers.length > 0) {
+            const metaMaskProvider = window.ethereum.providers.find(p => p.isMetaMask);
+            return metaMaskProvider || window.ethereum.providers[0];
+        }
+        return window.ethereum;
+    }
+    if (typeof window.web3 !== 'undefined' && window.web3.currentProvider) {
+        return window.web3.currentProvider;
+    }
+    return null;
+}
+
+/**
+ * Update Header and Footer team details across all pages
+ */
+function updateHeaderAndFooterTeamInfo() {
     const studentHeaderEl = document.getElementById('student-header-info');
     if (studentHeaderEl) {
         studentHeaderEl.innerHTML = `
-            <span>🎓 Student: <strong>${CONFIG.STUDENT_NAME}</strong></span>
-            <span class="student-badge-pill">Roll No: ${CONFIG.ROLL_NO}</span>
-            <span>Subject: ${CONFIG.SUBJECT}</span>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <span>🎓 <strong>Shaikh Affan</strong> (242774)</span>
+                <span>• <strong>Shaikh Sohail Salim</strong> (231754)</span>
+                <span>• <strong>Shaikh Uzhair Mohd Ilyas</strong> (231755)</span>
+                <span class="student-badge-pill">BCT Project</span>
+            </div>
         `;
     }
+
+    // Update all footers
+    const footerCredits = document.querySelectorAll('.footer-credits');
+    footerCredits.forEach(el => {
+        el.innerHTML = `Developed by Shaikh Affan (242774), Shaikh Sohail Salim (231754), Shaikh Uzhair Mohd Ilyas (231755)`;
+    });
 }
 
 /**
@@ -61,103 +102,174 @@ function saveCertificateToStorage(certObj) {
 }
 
 /**
- * Checks for window.ethereum (MetaMask) availability
+ * Checks for window.ethereum (MetaMask) availability and initializes Ethers.js
  */
 async function checkMetaMaskConnection() {
     const walletBtn = document.getElementById('connect-wallet-btn');
+    const ethProvider = getEthereumProvider();
 
-    if (typeof window.ethereum !== 'undefined') {
+    if (ethProvider) {
         try {
-            // Ethers v5 / v6 compatibility
+            // Ethers.js v5 / v6 BrowserProvider initialization
             if (window.ethers) {
-                provider = new ethers.providers.Web3Provider(window.ethereum);
+                if (window.ethers.BrowserProvider) {
+                    provider = new window.ethers.BrowserProvider(ethProvider);
+                } else if (window.ethers.providers && window.ethers.providers.Web3Provider) {
+                    provider = new window.ethers.providers.Web3Provider(ethProvider);
+                }
             }
 
-            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-            if (accounts.length > 0) {
+            // Request currently connected accounts without prompting popup unless requested
+            const accounts = await ethProvider.request({ method: 'eth_accounts' });
+            currentChainId = await ethProvider.request({ method: 'eth_chainId' });
+
+            if (accounts && accounts.length > 0) {
                 currentAccount = accounts[0];
-                if (provider) {
-                    signer = provider.getSigner();
-                    if (CONFIG.CONTRACT_ADDRESS && CONFIG.CONTRACT_ABI.length > 0) {
-                        contract = new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONFIG.CONTRACT_ABI, signer);
-                    }
-                }
+                await setupContractSigner();
                 onWalletConnected(currentAccount);
+            } else {
+                onWalletDisconnected(ethProvider);
             }
         } catch (err) {
             console.warn("MetaMask connection check error:", err);
+            onWalletDisconnected(ethProvider);
         }
 
-        // Listen for account changes
-        window.ethereum.on('accountsChanged', (accounts) => {
-            if (accounts.length === 0) {
-                onWalletDisconnected();
+        // Listen for MetaMask account changes
+        ethProvider.on('accountsChanged', (accounts) => {
+            if (!accounts || accounts.length === 0) {
+                onWalletDisconnected(ethProvider);
+                showToast("Wallet disconnected", "info");
             } else {
                 currentAccount = accounts[0];
-                onWalletConnected(currentAccount);
-                window.location.reload();
+                setupContractSigner().then(() => {
+                    onWalletConnected(currentAccount);
+                    showToast(`Account changed to: ${shortenAddress(currentAccount)}`, "info");
+                });
             }
         });
 
-        // Listen for chain changes
-        window.ethereum.on('chainChanged', () => {
-            window.location.reload();
+        // Listen for MetaMask chain/network changes
+        ethProvider.on('chainChanged', (newChainId) => {
+            currentChainId = newChainId;
+            showToast("Ethereum network changed. Reloading...", "warning");
+            setTimeout(() => window.location.reload(), 800);
         });
     } else {
-        if (walletBtn) {
-            walletBtn.innerHTML = `🦊 Install MetaMask`;
-            walletBtn.onclick = () => window.open('https://metamask.io/download/', '_blank');
-        }
+        onMetaMaskNotInstalled(walletBtn);
     }
 }
 
 /**
- * Connect wallet trigger
+ * Initialize Contract Instance with Ethers Signer
+ */
+async function setupContractSigner() {
+    if (!provider || !currentAccount) return;
+    try {
+        if (provider.getSigner) {
+            signer = await provider.getSigner();
+        }
+        if (CONFIG.CONTRACT_ADDRESS && CONFIG.CONTRACT_ABI && CONFIG.CONTRACT_ABI.length > 0 && signer) {
+            contract = new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONFIG.CONTRACT_ABI, signer);
+        }
+    } catch (e) {
+        console.warn("Could not create signed contract instance:", e);
+    }
+}
+
+/**
+ * Prompt user to connect MetaMask wallet
  */
 async function connectWallet() {
-    if (typeof window.ethereum === 'undefined') {
-        showToast("MetaMask is not installed! Running in preview/demo mode.", "warning");
+    let ethProvider = getEthereumProvider();
+
+    // Quick retry if ethProvider wasn't ready earlier
+    if (!ethProvider) {
+        await new Promise(r => setTimeout(r, 200));
+        ethProvider = getEthereumProvider();
+    }
+
+    if (!ethProvider) {
+        showToast("MetaMask is not detected in browser. Please make sure the extension is enabled and reload.", "error");
+        alert("MetaMask is not detected in your browser window.\n\nTips:\n1. Ensure the MetaMask extension is enabled in your browser extensions.\n2. Allow MetaMask access on localhost:3000.\n3. Reload the webpage (F5).");
         return;
     }
 
     try {
-        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        currentAccount = accounts[0];
-        if (window.ethers) {
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            signer = provider.getSigner();
-            if (CONFIG.CONTRACT_ADDRESS && CONFIG.CONTRACT_ABI.length > 0) {
-                contract = new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONFIG.CONTRACT_ABI, signer);
+        showToast("Requesting MetaMask wallet connection...", "info");
+        const accounts = await ethProvider.request({
+            method: "eth_requestAccounts"
+        });
+
+        if (accounts && accounts.length > 0) {
+            currentAccount = accounts[0];
+            currentChainId = await ethProvider.request({ method: 'eth_chainId' });
+
+            if (window.ethers) {
+                if (window.ethers.BrowserProvider) {
+                    provider = new window.ethers.BrowserProvider(ethProvider);
+                } else if (window.ethers.providers && window.ethers.providers.Web3Provider) {
+                    provider = new window.ethers.providers.Web3Provider(ethProvider);
+                }
             }
+
+            await setupContractSigner();
+            onWalletConnected(currentAccount);
+            showToast("🟢 MetaMask Connected successfully!", "success");
         }
-        onWalletConnected(currentAccount);
-        showToast("Wallet connected successfully!", "success");
     } catch (err) {
-        console.error("Wallet connection error:", err);
-        showToast("User rejected wallet connection or error occurred.", "error");
+        console.error("MetaMask connect error:", err);
+        if (err.code === 4001) {
+            showToast("Connection request rejected by user in MetaMask.", "warning");
+        } else {
+            showToast("Failed to connect MetaMask: " + (err.message || err), "error");
+        }
     }
 }
 
 function onWalletConnected(account) {
     const walletBtn = document.getElementById('connect-wallet-btn');
     if (walletBtn) {
-        const shortAddr = account.substring(0, 6) + "..." + account.substring(account.length - 4);
+        const shortAddr = shortenAddress(account);
         walletBtn.innerHTML = `🟢 ${shortAddr}`;
         walletBtn.classList.add('connected');
+        walletBtn.title = `Connected: ${account}. Click to switch/disconnect.`;
     }
     updateNetworkStatusUI();
 }
 
-function onWalletDisconnected() {
+function onWalletDisconnected(ethProvider) {
     currentAccount = null;
     signer = null;
     contract = null;
     const walletBtn = document.getElementById('connect-wallet-btn');
     if (walletBtn) {
-        walletBtn.innerHTML = `🦊 Connect MetaMask`;
-        walletBtn.classList.remove('connected');
+        if (ethProvider) {
+            walletBtn.innerHTML = `🦊 Connect MetaMask`;
+            walletBtn.classList.remove('connected');
+            walletBtn.onclick = () => connectWallet();
+        } else {
+            onMetaMaskNotInstalled(walletBtn);
+        }
     }
     updateNetworkStatusUI();
+}
+
+function onMetaMaskNotInstalled(walletBtn) {
+    if (walletBtn) {
+        walletBtn.innerHTML = `🦊 Install MetaMask`;
+        walletBtn.classList.remove('connected');
+        walletBtn.onclick = () => window.open('https://metamask.io/download/', '_blank');
+    }
+    updateNetworkStatusUI();
+}
+
+/**
+ * Formats address into 0x12AB...89CD
+ */
+function shortenAddress(addr) {
+    if (!addr) return "Not Connected";
+    return addr.substring(0, 6) + "..." + addr.substring(addr.length - 4);
 }
 
 /**
@@ -168,32 +280,66 @@ async function updateNetworkStatusUI() {
     const accountEl = document.getElementById('account-address-val');
     const certCountEl = document.getElementById('total-certs-val');
     const netIndicator = document.getElementById('network-indicator');
+    const walletCardStatus = document.getElementById('wallet-card-status');
 
     const certsMap = getStoredCertificates();
     const certCount = Object.keys(certsMap).length;
 
     if (certCountEl) certCountEl.innerText = certCount;
 
-    if (currentAccount) {
-        if (accountEl) {
-            accountEl.innerText = currentAccount.substring(0, 8) + "..." + currentAccount.substring(currentAccount.length - 6);
-        }
-        if (netIndicator) netIndicator.classList.add('online');
+    const ethProvider = getEthereumProvider();
 
-        if (provider) {
-            try {
-                const network = await provider.getNetwork();
-                if (netNameEl) netNameEl.innerText = network.name === 'unknown' ? 'Local RPC / Sepolia' : network.name.toUpperCase();
-            } catch (e) {
-                if (netNameEl) netNameEl.innerText = "MetaMask Connected";
+    if (!ethProvider) {
+        if (netNameEl) netNameEl.innerHTML = `<span style="color:var(--danger);">🔴 MetaMask Not Installed / Reload Page</span>`;
+        if (accountEl) accountEl.innerText = "No Web3 Wallet";
+        if (netIndicator) netIndicator.className = 'status-indicator';
+        if (walletCardStatus) walletCardStatus.innerHTML = `<span style="color:var(--danger);">🔴 MetaMask Not Installed</span>`;
+        return;
+    }
+
+    if (currentAccount) {
+        if (accountEl) accountEl.innerText = shortenAddress(currentAccount);
+        if (walletCardStatus) walletCardStatus.innerHTML = `<span style="color:var(--success);">🟢 MetaMask Connected</span> (${shortenAddress(currentAccount)})`;
+
+        // Check Network Match
+        let networkNameStr = "Ethereum Network";
+        let isWrongNetwork = false;
+
+        if (currentChainId) {
+            if (currentChainId === '0xaa36a7' || currentChainId === 11155111) {
+                networkNameStr = "Sepolia Testnet";
+            } else if (currentChainId === '0x1') {
+                networkNameStr = "Ethereum Mainnet";
+            } else if (currentChainId === '0x7a69' || currentChainId === 31337 || currentChainId === 1337) {
+                networkNameStr = "Hardhat / Localhost";
+            } else {
+                networkNameStr = `Chain ID (${parseInt(currentChainId, 16) || currentChainId})`;
             }
+
+            if (CONFIG.REQUIRED_CHAIN_ID && currentChainId !== CONFIG.REQUIRED_CHAIN_ID) {
+                isWrongNetwork = true;
+            }
+        }
+
+        if (isWrongNetwork) {
+            if (netNameEl) netNameEl.innerHTML = `<span style="color: var(--warning);">⚠️ Wrong Network (${networkNameStr})</span>`;
+            if (netIndicator) netIndicator.className = 'status-indicator warning';
         } else {
-            if (netNameEl) netNameEl.innerText = "Ethereum Provider Active";
+            if (netNameEl) netNameEl.innerText = networkNameStr;
+            if (netIndicator) netIndicator.className = 'status-indicator online';
         }
     } else {
         if (accountEl) accountEl.innerText = "Not Connected";
-        if (netNameEl) netNameEl.innerText = "Browser Demo Mode";
-        if (netIndicator) netIndicator.classList.remove('online');
+        if (netNameEl) netNameEl.innerText = "MetaMask Detected (Ready to Connect)";
+        if (netIndicator) netIndicator.className = 'status-indicator online';
+        if (walletCardStatus) walletCardStatus.innerHTML = `<span style="color:var(--text-dim);">🔴 Not Connected</span>`;
+        
+        // Ensure wallet button shows "Connect MetaMask"
+        const walletBtn = document.getElementById('connect-wallet-btn');
+        if (walletBtn) {
+            walletBtn.innerHTML = `🦊 Connect MetaMask`;
+            walletBtn.classList.remove('connected');
+        }
     }
 }
 
@@ -226,7 +372,15 @@ function showToast(message, type = 'info') {
 
 function setupEventListeners() {
     const walletBtn = document.getElementById('connect-wallet-btn');
-    if (walletBtn && (!walletBtn.onclick || walletBtn.onclick.toString().includes('metamask'))) {
-        walletBtn.addEventListener('click', connectWallet);
+    if (walletBtn) {
+        walletBtn.addEventListener('click', () => {
+            if (currentAccount) {
+                if (confirm(`Currently connected as ${currentAccount}.\nDo you want to request account change in MetaMask?`)) {
+                    connectWallet();
+                }
+            } else {
+                connectWallet();
+            }
+        });
     }
 }

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Public Certificate Verification Portal | Shaikh Affan (Roll No: 242774)">
-    <title>Verify Certificate | Decentralized DApp - Shaikh Affan 242774</title>
+    <meta name="description" content="Public Certificate Verification Portal | BCT Project">
+    <title>Verify Certificate | Decentralized DApp - BCT Project</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Ethers.js v5 CDN -->
+    <!-- Ethers.js v5 / v6 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
 </head>
 <body>
@@ -15,9 +15,8 @@
     <!-- Student Header Banner -->
     <div class="project-header-bar">
         <div class="student-badge-info" id="student-header-info">
-            <span>🎓 Student: <strong>Shaikh Affan</strong></span>
-            <span class="student-badge-pill">Roll No: 242774</span>
-            <span>BCT Project</span>
+            <span>🎓 Team: <strong>Shaikh Affan</strong> (242774) • <strong>Shaikh Sohail Salim</strong> (231754) • <strong>Shaikh Uzhair Mohd Ilyas</strong> (231755)</span>
+            <span class="student-badge-pill">BCT Project</span>
         </div>
         <div>
             <span>Public Verification Portal | Ethereum Immutable Records</span>
@@ -30,7 +29,7 @@
             <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
             <div class="brand-text">
                 <h1>CertiVerify DApp</h1>
-                <span>Shaikh Affan • Roll No: 242774</span>
+                <span>BCT Project • Ethereum Blockchain</span>
             </div>
         </a>
 
@@ -42,7 +41,7 @@
         </ul>
 
         <button id="connect-wallet-btn" class="wallet-btn">
-            <i class="fa-brands fa-ethereum"></i> Connect Wallet
+            <i class="fa-brands fa-ethereum"></i> 🦊 Connect MetaMask
         </button>
     </nav>
 
@@ -54,7 +53,7 @@
             <div class="status-item">
                 <div class="status-indicator" id="network-indicator"></div>
                 <span class="status-label">Network:</span>
-                <span class="status-value" id="network-name-val">Ethereum Sepolia / Local</span>
+                <span class="status-value" id="network-name-val">Detecting Network...</span>
             </div>
 
             <div class="status-item">
@@ -65,15 +64,27 @@
 
             <div class="status-item">
                 <i class="fa-solid fa-shield-check" style="color: var(--success);"></i>
-                <span class="status-label">Verification Status:</span>
-                <span class="status-value" style="color: var(--success);">Public Access Ready</span>
+                <span class="status-label">Verification Mode:</span>
+                <span class="status-value" style="color: var(--success);">Read-Only Smart Contract Query</span>
             </div>
         </div>
 
-        <div style="max-width: 800px; margin: 0 auto;">
+        <div style="max-width: 850px; margin: 0 auto;">
             
-            <div style="text-align: center; margin-bottom: 30px;">
-                <h1 style="font-family: var(--font-heading); font-size: 2.2rem;">Public Certificate Verification</h1>
+            <!-- Team Info Header Card -->
+            <div class="card" style="margin-bottom: 24px; border-color: rgba(0, 242, 254, 0.3);">
+                <div style="text-align: center;">
+                    <h2 style="font-family: var(--font-heading); font-size: 1.8rem; color: #fff;">
+                        Decentralized Certificate Verification DApp Using Ethereum
+                    </h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 6px;">
+                        <strong>BCT Project</strong> | Developed by <strong>Shaikh Affan</strong> (242774), <strong>Shaikh Sohail Salim</strong> (231754), <strong>Shaikh Uzhair Mohd Ilyas</strong> (231755)
+                    </p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 24px;">
+                <h1 style="font-family: var(--font-heading); font-size: 2rem;">Public Certificate Verification</h1>
                 <p style="color: var(--text-muted);">Query the Ethereum Smart Contract to verify academic credential authenticity</p>
             </div>
 
@@ -96,7 +107,7 @@
             <div class="non-printable" style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">
                 <span>💡 Quick Test IDs: </span>
                 <a href="verify.html?id=CERT-2026-001" style="color: var(--accent-cyan); text-decoration: underline; margin: 0 6px;">CERT-2026-001 (Shaikh Affan)</a> | 
-                <a href="verify.html?id=CERT-2026-002" style="color: var(--accent-cyan); text-decoration: underline; margin: 0 6px;">CERT-2026-002 (Aarav Sharma)</a> | 
+                <a href="verify.html?id=CERT-2026-002" style="color: var(--accent-cyan); text-decoration: underline; margin: 0 6px;">CERT-2026-002 (Shaikh Sohail Salim)</a> | 
                 <a href="verify.html?id=CERT-INVALID-999" style="color: var(--danger); text-decoration: underline; margin: 0 6px;">CERT-INVALID-999 (Test Invalid)</a>
             </div>
 
@@ -110,9 +121,9 @@
     <!-- Professional Footer -->
     <footer>
         <div class="footer-content">
-            <div class="footer-title">BCT Project | Decentralized Certificate Verification DApp</div>
-            <div class="footer-credits">Developed by Shaikh Affan | Roll No: 242774</div>
-            <div class="footer-sub">Subject: BCT • Smart Contracts & Web3 Technology</div>
+            <div class="footer-title">BCT Project | Decentralized Certificate Verification DApp Using Ethereum</div>
+            <div class="footer-credits">Developed by Shaikh Affan (242774), Shaikh Sohail Salim (231754), Shaikh Uzhair Mohd Ilyas (231755)</div>
+            <div class="footer-sub">Subject: BCT Project • Smart Contracts & Web3 Technology</div>
         </div>
     </footer>
 

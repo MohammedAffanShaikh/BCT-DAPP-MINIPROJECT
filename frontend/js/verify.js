@@ -1,6 +1,7 @@
 /**
- * Verification Page Logic
- * Student: Shaikh Affan | Roll No: 242774 | BCT Project
+ * Verification Page Logic - REAL Ethereum Smart Contract Read Query
+ * Project: Decentralized Certificate Verification DApp Using Ethereum
+ * Team Members: Shaikh Affan (242774), Shaikh Sohail Salim (231754), Shaikh Uzhair Mohd Ilyas (231755)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -42,7 +43,7 @@ async function verifyCertificateId(certId) {
 
     if (searchBtn) {
         searchBtn.disabled = true;
-        searchBtn.innerHTML = `🔍 Verifying on Blockchain...`;
+        searchBtn.innerHTML = `🔍 Querying Ethereum Blockchain...`;
     }
 
     if (resultContainer) {
@@ -50,36 +51,45 @@ async function verifyCertificateId(certId) {
         resultContainer.innerHTML = `
             <div class="card" style="text-align: center; padding: 40px;">
                 <div style="font-size: 2rem; margin-bottom: 12px;">⏳</div>
-                <h3>Querying Ethereum Blockchain...</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Fetching cryptographic proof for Certificate ID: <strong>${certId}</strong></p>
+                <h3>Querying Ethereum Smart Contract...</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Fetching cryptographic ledger record for Certificate ID: <strong>${certId}</strong></p>
             </div>
         `;
     }
 
     let certData = null;
-    let isFromContract = false;
+    let modeType = "NONE"; // "BLOCKCHAIN", "LOCAL_FALLBACK"
 
-    // 1. Try querying smart contract via Ethers.js
-    if (contract) {
+    // 1. Try querying real smart contract via Ethers.js read-only provider
+    if (contract || provider) {
         try {
-            const res = await contract.getCertificate(certId);
-            if (res && res.exists) {
-                certData = {
-                    certificateId: certId,
-                    studentName: res.studentName,
-                    studentId: res.studentId,
-                    course: res.course,
-                    issueDate: res.issueDate,
-                    documentHash: res.documentHash,
-                    issuedBy: res.issuedBy,
-                    exists: res.exists,
-                    timestamp: res.timestamp ? res.timestamp.toNumber() : Math.floor(Date.now() / 1000),
-                    txHash: "Verified directly from deployed smart contract mapping"
-                };
-                isFromContract = true;
+            let readOnlyContract = contract;
+
+            // If signer is not initialized, create a read-only contract instance with provider
+            if (!readOnlyContract && provider && CONFIG.CONTRACT_ADDRESS && CONFIG.CONTRACT_ABI) {
+                readOnlyContract = new ethers.Contract(CONFIG.CONTRACT_ADDRESS, CONFIG.CONTRACT_ABI, provider);
+            }
+
+            if (readOnlyContract) {
+                const res = await readOnlyContract.getCertificate(certId);
+                if (res && (res.exists || res[6] === true)) {
+                    certData = {
+                        certificateId: certId,
+                        studentName: res.studentName || res[0],
+                        studentId: res.studentId || res[1],
+                        course: res.course || res[2],
+                        issueDate: res.issueDate || res[3],
+                        documentHash: res.documentHash || res[4],
+                        issuedBy: res.issuedBy || res[5],
+                        exists: true,
+                        timestamp: res.timestamp ? (res.timestamp.toNumber ? res.timestamp.toNumber() : Number(res.timestamp)) : Math.floor(Date.now() / 1000),
+                        txHash: "Verified directly from deployed Ethereum Smart Contract mapping"
+                    };
+                    modeType = "BLOCKCHAIN";
+                }
             }
         } catch (err) {
-            console.warn("Smart contract query returned error or cert not found on-chain:", err);
+            console.warn("Smart contract query returned no record or contract not reachable:", err);
         }
     }
 
@@ -88,6 +98,7 @@ async function verifyCertificateId(certId) {
         const storedCerts = getStoredCertificates();
         if (storedCerts[certId] && storedCerts[certId].exists) {
             certData = storedCerts[certId];
+            modeType = certData.isBlockchainTx ? "BLOCKCHAIN" : "DEMO";
         }
     }
 
@@ -98,7 +109,7 @@ async function verifyCertificateId(certId) {
 
     // Render output
     if (certData) {
-        renderValidCertificateUI(certData, isFromContract);
+        renderValidCertificateUI(certData, modeType);
         showToast("Certificate Verified Successfully!", "success");
     } else {
         renderInvalidCertificateUI(certId);
@@ -107,15 +118,22 @@ async function verifyCertificateId(certId) {
 }
 
 /**
- * Render Success Verification Card
+ * Render Success Verification Card with Mode Indicators
  */
-function renderValidCertificateUI(cert, isFromContract) {
+function renderValidCertificateUI(cert, modeType) {
     const resultContainer = document.getElementById('verification-result-container');
     if (!resultContainer) return;
 
     const formattedDate = cert.issueDate || new Date().toISOString().split('T')[0];
     const issuerAddr = cert.issuedBy || "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-    const txHashStr = cert.txHash || "0x88df43f702d6b32df8d799015c7e10034a7065097ef78696b998cfb68d6f512a";
+    const txHashStr = cert.txHash || "Stored in Local Demonstration Session";
+
+    let modeBadgeHTML = "";
+    if (modeType === "BLOCKCHAIN") {
+        modeBadgeHTML = `<span style="background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 4px 12px; border-radius: var(--radius-full); font-weight: 600; font-size: 0.8rem;">🟢 Connected to Ethereum Smart Contract</span>`;
+    } else {
+        modeBadgeHTML = `<span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); padding: 4px 12px; border-radius: var(--radius-full); font-weight: 600; font-size: 0.8rem;">🟡 Demo / Local Record Mode</span>`;
+    }
 
     resultContainer.innerHTML = `
         <div class="cert-result-card valid" id="printable-certificate">
@@ -124,9 +142,9 @@ function renderValidCertificateUI(cert, isFromContract) {
                     <div class="cert-status-banner valid">
                         <span>🛡️</span> Certificate Verified Successfully
                     </div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted);">
-                        Blockchain Verified Record • ${isFromContract ? 'Live Ethereum Smart Contract' : 'Cryptographic Ledger Entry'}
-                    </p>
+                    <div style="margin-top: 6px;">
+                        ${modeBadgeHTML}
+                    </div>
                 </div>
                 <div class="non-printable" style="display: flex; gap: 10px;">
                     <button onclick="window.print()" class="btn-secondary" style="padding: 8px 14px; font-size: 0.85rem;">🖨️ Print / Download PDF</button>
@@ -164,7 +182,7 @@ function renderValidCertificateUI(cert, isFromContract) {
                     <p style="font-size: 0.85rem;">${CONFIG.INSTITUTE}</p>
                 </div>
                 <div class="cert-detail-item" style="grid-column: 1 / -1;">
-                    <label>Document Hash (SHA-256)</label>
+                    <label>Document Digital Fingerprint (SHA-256 Hash)</label>
                     <p class="hash-text">${cert.documentHash}</p>
                 </div>
                 <div class="cert-detail-item" style="grid-column: 1 / -1;">
@@ -172,17 +190,17 @@ function renderValidCertificateUI(cert, isFromContract) {
                     <p class="hash-text" style="color: #fff !important;">${issuerAddr}</p>
                 </div>
                 <div class="cert-detail-item" style="grid-column: 1 / -1;">
-                    <label>Blockchain Transaction Hash</label>
+                    <label>Blockchain Transaction Reference</label>
                     <p class="hash-text">${txHashStr}</p>
                 </div>
             </div>
 
-            <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border); padding-top: 20px; font-size: 0.8rem; color: var(--text-dim);">
+            <div style="margin-top: 30px; display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed var(--border); padding-top: 20px; font-size: 0.8rem; color: var(--text-dim); flex-wrap: wrap; gap: 10px;">
                 <div>
                     <span>Project: BCT Mini Project</span> | 
-                    <span>Student Developer: ${CONFIG.STUDENT_NAME} (${CONFIG.ROLL_NO})</span>
+                    <span>Team: Shaikh Affan (242774), Shaikh Sohail Salim (231754), Shaikh Uzhair Mohd Ilyas (231755)</span>
                 </div>
-                <div style="font-family: var(--font-code);">STATUS: TAMPER-PROOF & IMMUTABLE</div>
+                <div style="font-family: var(--font-code); color: var(--success);">STATUS: TAMPER-PROOF & IMMUTABLE</div>
             </div>
         </div>
     `;
@@ -198,20 +216,20 @@ function renderInvalidCertificateUI(certId) {
     resultContainer.innerHTML = `
         <div class="cert-result-card invalid">
             <div class="cert-status-banner invalid">
-                <span>⚠️</span> Certificate Not Found / Invalid Certificate
+                <span>🔴</span> Certificate Not Found / Invalid Certificate
             </div>
             
             <h3 style="color: #fff; margin-bottom: 12px;">No Matching Blockchain Record Found</h3>
             <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
-                The Certificate ID <strong style="color: var(--danger); font-family: var(--font-code);">${certId}</strong> does not exist in the Ethereum smart contract registry. It may be fraudulent, mistyped, or not yet issued by an authorized institute admin.
+                The Certificate ID <strong style="color: var(--danger); font-family: var(--font-code);">${certId}</strong> does not exist in the Ethereum smart contract registry. It may be fraudulent, mistyped, or not yet issued by an authorized institute admin wallet.
             </p>
 
             <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); padding: 16px; border-radius: var(--radius-md); font-size: 0.88rem; color: var(--text-muted);">
-                💡 <strong>Verification Tips:</strong>
-                <ul style="margin-left: 20px; margin-top: 8px;">
-                    <li>Ensure the Certificate ID was entered correctly (e.g. <code>CERT-2026-001</code>).</li>
-                    <li>Verify that the certificate was issued by an authorized university admin wallet.</li>
-                    <li>If you are an admin, issue the certificate from the <a href="admin.html" style="color: var(--accent-cyan);">Admin Dashboard</a>.</li>
+                💡 <strong>Verification Instructions:</strong>
+                <ul style="margin-left: 20px; margin-top: 8px; line-height: 1.6;">
+                    <li>Check that the Certificate ID was typed correctly (e.g., <code>CERT-2026-001</code>).</li>
+                    <li>Confirm that the certificate was signed by an authorized university admin wallet on Ethereum.</li>
+                    <li>If you are an admin, issue the certificate from the <a href="admin.html" style="color: var(--accent-cyan);">Admin Dashboard</a> using MetaMask.</li>
                 </ul>
             </div>
         </div>

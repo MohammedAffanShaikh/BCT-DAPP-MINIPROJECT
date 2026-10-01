@@ -4,9 +4,12 @@
 
 ---
 
-**STUDENT NAME:** Shaikh Affan  
-**ROLL NUMBER:** 242774  
-**SUBJECT:** Bachelor of Computer Technology (BCT)  
+**PROJECT TEAM MEMBERS:**  
+- **Shaikh Affan** (Roll No: 242774)  
+- **Shaikh Sohail Salim** (Roll No: 231754)  
+- **Shaikh Uzhair Mohd Ilyas** (Roll No: 231755)  
+
+**SUBJECT:** Bachelor of Computer Technology (BCT Project)  
 **PROJECT TITLE:** Decentralized Certificate Verification DApp Using Ethereum  
 **SUBMISSION YEAR:** 2026  
 
@@ -36,11 +39,11 @@
 
 ## 1. ABSTRACT
 
-Educational credentials and academic certificates serve as vital proof of qualification for employment, higher studies, and licensing. However, conventional paper and digital PDF certificates are increasingly susceptible to forgery, fraud, and unauthorized alteration. Verification of credentials traditionally involves manual correspondence with issuing institutions, leading to prolonged delays, administrative overhead, and vulnerability to centralized database tampering.
+Academic credentials and educational certificates serve as vital proof of qualification for employment, higher studies, and professional licensing. However, conventional paper and digital PDF certificates are increasingly susceptible to forgery, fraud, and unauthorized alteration. Verification of credentials traditionally involves manual correspondence with issuing institutions, leading to prolonged delays, administrative overhead, and vulnerability to centralized database tampering.
 
-This mini project presents a **Decentralized Certificate Verification DApp** built on the **Ethereum blockchain**. Developed for **BCT** by **Shaikh Affan (Roll No: 242774)**, the application leverages **Solidity 0.8.x** smart contracts, **MetaMask** wallet authentication, **Ethers.js**, and client-side **HTML5/CSS3/JavaScript** hosted statically on **Netlify**. 
+This project presents a **Decentralized Certificate Verification DApp** built on the **Ethereum blockchain**. Developed for **BCT Project** by **Shaikh Affan (242774), Shaikh Sohail Salim (231754), and Shaikh Uzhair Mohd Ilyas (231755)**, the application leverages **Solidity 0.8.x** smart contracts, **MetaMask** Web3 wallet authentication, **Ethers.js**, and client-side **HTML5/CSS3/JavaScript** hosted statically on **Netlify**. 
 
-The smart contract provides tamper-proof storage of student metadata, certificate identifiers, and document SHA-256 hashes. Role-based access control (`onlyAdmin`) ensures that only authorized educational bodies can issue certificates. Anyone can verify certificate authenticity publicly via a web browser without paying gas fees or requiring centralized backend database servers.
+The smart contract provides tamper-proof storage of student metadata, certificate identifiers, and document SHA-256 hashes. Role-based access control (`onlyAdmin`) ensures that only authorized educational bodies can issue certificates via MetaMask signing. Anyone can verify certificate authenticity publicly via a web browser without paying gas fees or requiring centralized backend database servers.
 
 ---
 
@@ -63,78 +66,61 @@ By deploying smart contracts on the Ethereum network, educational institutions c
 
 ## 4. OBJECTIVES
 
-* To design and code an Ethereum smart contract in **Solidity 0.8.x** containing certificate structures, state mappings, and events.
+* To design and deploy a **Solidity 0.8.x smart contract** for certificate issuance and cryptographic retrieval.
 * To implement strict role-based access control (`onlyAdmin`) ensuring only authorized institute admin wallets can issue credentials.
+* To integrate **MetaMask** wallet transaction signing and **Ethers.js** provider communication.
 * To prevent duplicate certificate issuance through unique key mapping validation.
 * To compute document **SHA-256 cryptographic hashes** on the client side using Web Crypto APIs.
 * To create a modern, responsive user interface (Glassmorphism Cyber-Ethereum theme) suitable for college demonstration.
-* To connect the frontend directly to Ethereum nodes using **Ethers.js** and **MetaMask**.
 * To deploy the static frontend on **Netlify** with zero traditional backend dependencies.
-
----
-
-## 5. EXISTING SYSTEM
-
-In the existing credential verification model:
-* Educational institutions issue physical degrees or email digital PDFs.
-* Recruiters manually contact institutions via email/phone or hire third-party background verification agencies.
-* Verification depends on manual human verification and centralized SQL databases.
-
-### Disadvantages of Existing System:
-* High operational cost and long turnaround times.
-* Risk of insider database manipulation or corruption.
-* Susceptible to counterfeit diploma mills.
-
----
-
-## 6. PROPOSED SYSTEM
-
-The proposed **Decentralized Certificate Verification DApp**:
-* Uses Ethereum smart contracts as a tamper-proof public registry.
-* Generates a cryptographic SHA-256 hash of student credentials and document files.
-* Allows authorized institute administrators to mint certificates directly to the blockchain.
-* Enables instant, zero-cost public verification for recruiters and verifiers worldwide.
 
 ---
 
 ## 7. SYSTEM ARCHITECTURE
 
 ```text
-+-------------------------------------------------------------------------+
-|                        INSTITUTE ADMIN (admin.html)                      |
-|  1. Fills Student Details & Document Hash                               |
-|  2. Connects MetaMask Wallet                                            |
-|  3. Signs Transaction & Calls issueCertificate()                       |
-+------------------------------------+------------------------------------+
-                                     |
-                                     v
-+------------------------------------+------------------------------------+
-|                   ETHEREUM SMART CONTRACT                               |
-|               (CertificateVerification.sol)                             |
-|  - checks onlyAdmin modifier                                            |
-|  - verifies !certificates[id].exists                                    |
-|  - updates mapping(string => Certificate)                               |
-|  - emits CertificateIssued event                                        |
-+------------------------------------+------------------------------------+
-                                     |
-                                     v
-+------------------------------------+------------------------------------+
-|                      PUBLIC VERIFIER (verify.html)                       |
-|  1. Inputs Certificate ID                                               |
-|  2. Calls getCertificate() via Ethers.js                                |
-|  3. Displays "Certificate Verified Successfully" Banner                 |
-+-------------------------------------------------------------------------+
+                 ADMIN
+                   │
+                   ▼
+          WEB APPLICATION
+        HTML/CSS/JavaScript
+                   │
+                   ▼
+              Ethers.js
+                   │
+                   ▼
+              MetaMask
+                   │
+             Transaction
+                   │
+                   ▼
+       ETHEREUM SMART CONTRACT
+              Solidity
+                   │
+                   ▼
+         ETHEREUM BLOCKCHAIN
+                   │
+                   ▼
+          Certificate Record
+
+
+                USER
+                  │
+                  ▼
+       Certificate ID
+                  │
+                  ▼
+          Web Application
+                  │
+                  ▼
+             Ethers.js
+                  │
+                  ▼
+       Smart Contract Read
+                  │
+                  ▼
+      Certificate Verification
 ```
-
----
-
-## 8. METHODOLOGY
-
-1. **Smart Contract Development:** Standardized data model created in Solidity using Remix IDE.
-2. **Access Control:** Contract constructor records `msg.sender` as `admin`.
-3. **Frontend Architecture:** Static HTML5, Vanilla CSS3 (Glassmorphism), and ES6 JavaScript.
-4. **Blockchain Integration:** Ethers.js Web3Provider listens to MetaMask events and invokes contract methods.
-5. **Static Hosting Deployment:** Configured `netlify.toml` publishing the `frontend` directory on Netlify.
 
 ---
 
@@ -227,87 +213,6 @@ contract CertificateVerification {
 
 ---
 
-## 10. DAPP WORKFLOW
-
-1. **Admin Wallet Connection:** Admin opens `admin.html` and connects MetaMask.
-2. **Form Input & Hashing:** Admin enters student details or uploads certificate file to generate SHA-256 hash.
-3. **Transaction Execution:** Form submission calls `contract.issueCertificate()`.
-4. **Block Mining:** Ethereum network validates and mines the block.
-5. **Verification Lookup:** Verifier opens `verify.html`, submits Certificate ID, and reads data via free `view` call.
-
----
-
-## 11. IMPLEMENTATION
-
-The file structure is organized as follows:
-```text
-certificate-verification-dapp/
-│
-├── contracts/
-│   └── CertificateVerification.sol
-├── frontend/
-│   ├── index.html
-│   ├── admin.html
-│   ├── verify.html
-│   ├── about.html
-│   ├── css/
-│   │   └── style.css
-│   └── js/
-│       ├── app.js
-│       ├── admin.js
-│       ├── verify.js
-│       └── config.js
-├── README.md
-├── PROJECT_REPORT.md
-├── netlify.toml
-└── deployment/
-    └── deployment-guide.md
-```
-
----
-
-## 12. RESULTS & DEMONSTRATION
-
-* **Header Banner:** Displays **Shaikh Affan | 242774 | BCT Project** on all pages.
-* **Issuance Confirmation:** Generates real-time transaction hash upon mining.
-* **Verification Output:** Displays green status badge **Certificate Verified Successfully** with official certificate layout.
-* **Invalid Input Output:** Displays red status banner **Certificate Not Found / Invalid Certificate**.
-
----
-
-## 13. ADVANTAGES
-
-1. **Immutability:** Records cannot be deleted or altered once mined.
-2. **Decentralization:** No single point of server failure.
-3. **Instant Verification:** Verification completed in under 2 seconds.
-4. **Netlify Compatible:** Runs on static web hosting with zero server setup cost.
-
----
-
-## 14. LIMITATIONS
-
-1. **Gas Cost:** Issuing certificates requires Ethereum gas fees on live mainnet (mitigated by using testnets like Sepolia).
-2. **MetaMask Dependency:** Admin issuance requires MetaMask browser extension.
-
----
-
-## 15. FUTURE SCOPE
-
-1. **IPFS Integration:** Storing full PDF documents on InterPlanetary File System.
-2. **Multi-Signatory Support:** Requiring approval from dean and department head before certificate activation.
-3. **QR Code Scanning:** Quick mobile camera verification.
-
----
-
 ## 16. CONCLUSION
 
-The **Decentralized Certificate Verification DApp** successfully demonstrates how Ethereum blockchain technology and Web3 tools can solve credential forgery and slow verification. Developed as a **BCT Mini Project by Shaikh Affan (Roll No: 242774)**, the system achieves immutable certificate issuance, instant public verification, and seamless static deployment on Netlify.
-
----
-
-## 17. REFERENCES
-
-1. Antonopoulos, A. M., & Wood, G. (2018). *Mastering Ethereum: Building Smart Contracts and DApps*. O'Reilly Media.
-2. Ethereum Foundation. (2026). *Solidity Documentation v0.8.x*. https://docs.soliditylang.org/
-3. Ethers.js Documentation. (2026). *Complete Web3 Provider Interface*. https://docs.ethers.org/
-4. MetaMask Developer Docs. (2026). *Ethereum Provider API*. https://docs.metamask.io/
+The **Decentralized Certificate Verification DApp** successfully demonstrates how Ethereum blockchain technology, Ethers.js, and MetaMask can eliminate credential forgery and slow manual verification. Developed as a **BCT Project by Shaikh Affan (242774), Shaikh Sohail Salim (231754), and Shaikh Uzhair Mohd Ilyas (231755)**, the system achieves immutable certificate issuance, real transaction mining execution, instant public verification, and seamless static deployment on Netlify.

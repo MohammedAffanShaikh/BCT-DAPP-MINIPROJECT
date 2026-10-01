@@ -1,23 +1,33 @@
 /**
  * Configuration File for Decentralized Certificate Verification DApp
- * Student Name: Shaikh Affan | Roll No: 242774 | BCT Project
+ * Project: Decentralized Certificate Verification DApp Using Ethereum
+ * Team Members:
+ *  - Shaikh Affan — 242774
+ *  - Shaikh Sohail Salim — 231754
+ *  - Shaikh Uzhair Mohd Ilyas — 231755
+ * Subject: BCT Project
  */
 
 const CONFIG = {
-    // Student & Project Information
-    PROJECT_NAME: "Decentralized Certificate Verification DApp",
-    STUDENT_NAME: "Shaikh Affan",
-    ROLL_NO: "242774",
+    // Project & Team Information
+    PROJECT_NAME: "Decentralized Certificate Verification DApp Using Ethereum",
     SUBJECT: "BCT Project",
     INSTITUTE: "BCT Engineering Institute",
+    
+    TEAM_MEMBERS: [
+        { name: "Shaikh Affan", rollNo: "242774" },
+        { name: "Shaikh Sohail Salim", rollNo: "231754" },
+        { name: "Shaikh Uzhair Mohd Ilyas", rollNo: "231755" }
+    ],
 
     // Smart Contract Configuration
-    // Update CONTRACT_ADDRESS after deploying CertificateVerification.sol in Remix or Hardhat
-    CONTRACT_ADDRESS: "0x358AA13c52544EC2c6E1A8481047A13400C3C759", // Placeholder deployed contract address (easily editable)
+    CONTRACT_ADDRESS: "0x358AA13c52544EC2c6E1A8481047A13400C3C759",
 
-    // Expected Ethereum Network details (e.g. Sepolia, Hardhat, Ganache, or Remix VM)
-    REQUIRED_CHAIN_ID: "0xaa36a7", // Sepolia Testnet (11155111 in hex). Set to null or false to allow any network.
-    NETWORK_NAME: "Ethereum Sepolia Testnet / Remix VM",
+    // Set REQUIRED_CHAIN_ID to null to allow ANY connected network (Mainnet, Sepolia, Hardhat, Ganache, etc.)
+    // Or set to "0xaa36a7" for Sepolia Testnet specifically
+    REQUIRED_CHAIN_ID: null, 
+    NETWORK_NAME: "Ethereum Network",
+    BLOCK_EXPLORER_URL: "https://etherscan.io",
 
     // Full Smart Contract ABI matching CertificateVerification.sol
     CONTRACT_ABI: [
@@ -134,7 +144,7 @@ const CONFIG = {
         }
     ],
 
-    // Demo Initial Data (Preloaded into local memory so the evaluator can test immediately even without active contract deployment)
+    // Demo Initial Data (Used ONLY as fallback when blockchain contract is not yet deployed)
     SAMPLE_CERTIFICATES: {
         "CERT-2026-001": {
             certificateId: "CERT-2026-001",
@@ -146,19 +156,19 @@ const CONFIG = {
             issuedBy: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             exists: true,
             timestamp: 1759190400,
-            txHash: "0x88df43f702d6b32df8d799015c7e10034a7065097ef78696b998cfb68d6f512a"
+            isDemoData: true
         },
         "CERT-2026-002": {
             certificateId: "CERT-2026-002",
-            studentName: "Aarav Sharma",
-            studentId: "242775",
+            studentName: "Shaikh Sohail Salim",
+            studentId: "231754",
             course: "Blockchain Engineering Specialization",
             issueDate: "2026-09-28",
             documentHash: "a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef0",
             issuedBy: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             exists: true,
             timestamp: 1759017600,
-            txHash: "0x3a4b5c6d7e8f90123456789abcdef0123456789abcdef0123456789abcdef01"
+            isDemoData: true
         }
     }
 };
